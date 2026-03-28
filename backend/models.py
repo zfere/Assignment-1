@@ -1,4 +1,7 @@
 from pydantic import BaseModel
 
-# TODO:  models go here
+class Flashcard(BaseModel):
+	id: int
+	question: str
+	answer: str
 

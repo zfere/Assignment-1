@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
+from models import Flashcard
 
-app = FastAPI(title="Simple To-Do API")
+app = FastAPI(title="Simple Flashcard API")
 
 
 origins = [
@@ -22,26 +22,17 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 
-
-
-class Flashcard(BaseModel):
-    id: int 
-    text: str
-    completed: bool = False
-
-
-
 card_db: List[Flashcard] = []
 
 
 
-# Read endpoint. Intended to become the flashcard list endpoint later.
+# Read endpoint. Intended to become the flashcard list endpoint.
 @app.get("/cards", response_model=List[Flashcard])
 async def get_all_flashcards():
     """Fetch the entire flashcard list."""
     return card_db
 
-# Create endpoint. Intended to become the flashcard creation endpoint later.
+# Create endpoint. Intended to become the flashcard creation endpoint.
 @app.post("/cards", response_model=Flashcard)
 async def create_flashcard(item: Flashcard):
     """Add a new flashcard to the list."""
@@ -52,7 +43,7 @@ async def create_flashcard(item: Flashcard):
     card_db.append(item)
     return item
 
- # Update endpoint. Intended to become the flashcard edit endpoint later.
+ # Update endpoint. Intended to become the flashcard edit endpoint.
 @app.put("/cards/{card_id}", response_model=Flashcard)
 async def update_flashcard(card_id: int, updated_item: Flashcard):
     """Update an existing flashcard by its ID."""
@@ -64,7 +55,7 @@ async def update_flashcard(card_id: int, updated_item: Flashcard):
 
     raise HTTPException(status_code=404, detail="Flashcard not found.")
 
- # Delete endpoint. Intended to become the flashcard delete endpoint later.
+ # Delete endpoint. Intended to become the flashcard delete endpoint.
 @app.delete("/cards/{card_id}")
 async def delete_flashcard(card_id: int):
     """Remove a flashcard from the list."""
