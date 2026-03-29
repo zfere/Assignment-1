@@ -1,12 +1,28 @@
-import os
-import motor.motor_asyncio
-from dotenv import load_dotenv
+import sqlite3
+from pathlib import Path
 
-load_dotenv()
 
-MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.getenv("DB_NAME", "flashcards_db")
+DB_PATH = Path(__file__).resolve().parent / "flashcards.db"
 
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URL)
-db = client[DB_NAME]
-flashcards_collection = db["flashcards"]
+
+def get_connection() -> sqlite3.Connection:
+	connection = sqlite3.connect(DB_PATH)
+	connection.row_factory = sqlite3.Row
+	return connection
+
+
+def init_db() -> None:
+	with get_connection() as connection:
+		connection.execute(
+			"""
+			CREATE TABLE IF NOT EXISTS flashcards (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				question TEXT NOT NULL,
+				answer TEXT NOT NULL
+			)
+			"""
+		)
+		connection.commit()
+
+
+init_db()

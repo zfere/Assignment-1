@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from models import Flashcard
+from database import get_connection
 
 app = FastAPI(title="Simple Flashcard API")
 
@@ -20,48 +21,77 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-card_db: List[Flashcard] = []
+def serialize_flashcard(row) -> Flashcard:
+    return Flashcard(id=row["id"], question=row["question"], answer=row["answer"])
 
 
 # Read flashcards
 @app.get("/api/flashcards", response_model=List[Flashcard])
 async def get_all_flashcards():
-    """Fetch the entire flashcard list."""
-    return card_db
+    """Fetch the entire flashcard list from database."""
+    with get_connection() as connection:
+        rows = connection.execute(
+            "SELECT id, question, answer FROM flashcards ORDER BY id DESC"
+        ).fetchall()
+
+    return [serialize_flashcard(row) for row in rows]
 
 
 # Create flashcard
 @app.post("/api/flashcards", response_model=Flashcard)
 async def create_flashcard(flashcard: Flashcard):
-    """Add a new flashcard to the list."""
-    existing_item = next((card for card in card_db if card.id == flashcard.id), None)
-    if existing_item is not None:
-        raise HTTPException(status_code=400, detail="A flashcard with this ID already exists.")
+    """Create a flashcard in database."""
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "INSERT INTO flashcards (question, answer) VALUES (?, ?)",
+            (flashcard.question, flashcard.answer),
+        )
+        connection.commit()
+        new_id = cursor.lastrowid
 
-    card_db.append(flashcard)
-    return flashcard
+        row = connection.execute(
+            "SELECT id, question, answer FROM flashcards WHERE id = ?", (new_id,)
+        ).fetchone()
+
+    if row is None:
+        raise HTTPException(status_code=500, detail="Flashcard was not created.")
+
+    return serialize_flashcard(row)
 
 
 # Update flashcard
 @app.put("/api/flashcards/{card_id}", response_model=Flashcard)
 async def update_flashcard(card_id: int, updated_flashcard: Flashcard):
     """Update an existing flashcard by its ID."""
-    for index, card in enumerate(card_db):
-        if card.id == card_id:
-            updated_card = updated_flashcard.model_copy(update={"id": card_id})
-            card_db[index] = updated_card
-            return updated_card
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "UPDATE flashcards SET question = ?, answer = ? WHERE id = ?",
+            (updated_flashcard.question, updated_flashcard.answer, card_id),
+        )
+        connection.commit()
 
-    raise HTTPException(status_code=404, detail="Flashcard not found.")
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+        row = connection.execute(
+            "SELECT id, question, answer FROM flashcards WHERE id = ?", (card_id,)
+        ).fetchone()
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    return serialize_flashcard(row)
 
 
 # Delete flashcard
 @app.delete("/api/flashcards/{card_id}")
 async def delete_flashcard(card_id: int):
-    """Remove a flashcard from the list."""
-    for index, card in enumerate(card_db):
-        if card.id == card_id:
-            del card_db[index]
-            return {"message": "Flashcard deleted successfully."}
+    """Delete a flashcard by its ID."""
+    with get_connection() as connection:
+        cursor = connection.execute("DELETE FROM flashcards WHERE id = ?", (card_id,))
+        connection.commit()
 
-    raise HTTPException(status_code=404, detail="Flashcard not found.")
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    return {"message": "Flashcard deleted successfully."}

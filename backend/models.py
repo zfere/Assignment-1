@@ -1,7 +1,9 @@
 from pydantic import BaseModel
+from typing import Optional
+
 
 class Flashcard(BaseModel):
-	id: int
-	question: str
-	answer: str
+    id: Optional[int] = None
+    question: str
+    answer: str
 
