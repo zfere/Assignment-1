@@ -18,6 +18,7 @@ function App() {
   const [revealedId, setRevealedId] = useState(null)
 
   const cardsRemaining = useMemo(() => studyDeck.length, [studyDeck])
+  const currentCard = useMemo(() => studyDeck[0] ?? null, [studyDeck])
 
   const loadCards = async () => {
     setLoading(true)
@@ -89,6 +90,9 @@ function App() {
 
       setCards((prev) => prev.filter((card) => card.id !== cardId))
       setStudyDeck((prev) => prev.filter((card) => card.id !== cardId))
+      if (revealedId === cardId) {
+        setRevealedId(null)
+      }
       if (editingId === cardId) {
         setEditingId(null)
       }
@@ -141,13 +145,21 @@ function App() {
     }
   }
 
-  const revealAndRemove = (cardId) => {
-    setRevealedId(cardId)
+  const revealCurrentCard = () => {
+    if (!currentCard) {
+      return
+    }
 
-    window.setTimeout(() => {
-      setStudyDeck((prev) => prev.filter((card) => card.id !== cardId))
-      setRevealedId(null)
-    }, 900)
+    setRevealedId(currentCard.id)
+  }
+
+  const goToNextCard = () => {
+    if (!currentCard) {
+      return
+    }
+
+    setStudyDeck((prev) => prev.slice(1))
+    setRevealedId(null)
   }
 
   const resetStudyDeck = () => {
@@ -181,30 +193,32 @@ function App() {
         </div>
       </header>
 
-      <section className="panel create-panel">
-        <h2>Add Flashcard</h2>
-        <form onSubmit={handleCreate} className="create-form">
-          <label>
-            Question
-            <input
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Type the question"
-            />
-          </label>
+      {activeView === 'manage' ? (
+        <section className="panel create-panel">
+          <h2>Add Flashcard</h2>
+          <form onSubmit={handleCreate} className="create-form">
+            <label>
+              Question
+              <input
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder="Type the question"
+              />
+            </label>
 
-          <label>
-            Answer
-            <input
-              value={answer}
-              onChange={(event) => setAnswer(event.target.value)}
-              placeholder="Type the answer"
-            />
-          </label>
+            <label>
+              Answer
+              <input
+                value={answer}
+                onChange={(event) => setAnswer(event.target.value)}
+                placeholder="Type the answer"
+              />
+            </label>
 
-          <button type="submit">Create</button>
-        </form>
-      </section>
+            <button type="submit">Create</button>
+          </form>
+        </section>
+      ) : null}
 
       {error ? <p className="status error">{error}</p> : null}
       {loading ? <p className="status">Loading flashcards...</p> : null}
@@ -224,24 +238,33 @@ function App() {
               </button>
             </div>
           ) : (
-            <div className="card-grid">
-              {studyDeck.map((card) => {
-                const isRevealed = card.id === revealedId
-                return (
-                  <button
-                    key={card.id}
-                    type="button"
-                    className={`study-card ${isRevealed ? 'revealed' : ''}`}
-                    onClick={() => revealAndRemove(card.id)}
-                  >
-                    <span className="card-label">Question</span>
-                    <span className="card-text">{isRevealed ? card.answer : card.question}</span>
-                    <span className="hint-text">
-                      {isRevealed ? 'Removing from session...' : 'Click to reveal answer'}
-                    </span>
+            <div className="study-stage">
+              <button
+                key={currentCard.id}
+                type="button"
+                className={`study-card ${revealedId === currentCard.id ? 'revealed' : ''}`}
+                onClick={revealCurrentCard}
+              >
+                <span className="card-label">
+                  {revealedId === currentCard.id ? 'Answer' : 'Question'}
+                </span>
+                <span className="card-text">
+                  {revealedId === currentCard.id ? currentCard.answer : currentCard.question}
+                </span>
+                <span className="hint-text">
+                  {revealedId === currentCard.id
+                    ? 'Answer revealed. Click Next Card.'
+                    : 'Click to reveal answer'}
+                </span>
+              </button>
+
+              <div className="study-actions">
+                {revealedId === currentCard.id ? (
+                  <button type="button" onClick={goToNextCard}>
+                    Next Card
                   </button>
-                )
-              })}
+                ) : null}
+              </div>
             </div>
           )}
         </section>

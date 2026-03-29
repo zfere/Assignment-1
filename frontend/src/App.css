@@ -22,24 +22,32 @@
   justify-content: space-between;
   gap: 18px;
   align-items: flex-end;
+  padding: 20px 22px;
+  border: 1px solid rgba(196, 181, 253, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(76, 29, 149, 0.92), rgba(91, 33, 182, 0.84));
+  box-shadow: 0 24px 60px rgba(46, 16, 101, 0.24);
 }
 
 .top-bar h1 {
   margin: 0;
   font-size: 2rem;
+  color: #f5f3ff;
 }
 
 .top-bar p {
   margin: 8px 0 0;
-  color: var(--ink-700);
+  color: #ddd6fe;
+  max-width: 38rem;
 }
 
 .mode-switch {
-  background: var(--violet-100);
+  background: rgba(15, 23, 42, 0.22);
   border-radius: 10px;
   padding: 4px;
   display: flex;
   gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .mode-switch button,
@@ -53,12 +61,18 @@
 
 .mode-switch button {
   background: transparent;
-  color: var(--ink-900);
+  color: #ede9fe;
   padding: 8px 14px;
 }
 
 .mode-switch button.active {
-  background: var(--violet-700);
+  background: #f5f3ff;
+  color: var(--violet-800);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+}
+
+.mode-switch button:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
@@ -72,6 +86,7 @@
 .create-panel h2,
 .section-header h2 {
   margin-top: 0;
+  color: var(--ink-900);
 }
 
 .create-form {
@@ -79,6 +94,7 @@
   grid-template-columns: 1fr 1fr auto;
   gap: 12px;
   align-items: end;
+  text-align: left;
 }
 
 .create-form label {
@@ -87,6 +103,7 @@
   gap: 6px;
   font-weight: 600;
   color: var(--ink-700);
+  text-align: left;
 }
 
 input {
@@ -101,6 +118,11 @@ input {
   padding: 10px 14px;
   background: var(--violet-700);
   color: #ffffff;
+}
+
+.create-form button {
+  width: 140px;
+  justify-self: end;
 }
 
 .panel button:hover {
@@ -130,6 +152,7 @@ input {
 .counter {
   font-weight: 700;
   color: var(--violet-700);
+  font-family: inherit;
 }
 
 .empty-box {
@@ -144,49 +167,75 @@ input {
 }
 
 .card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
+}
+
+.study-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 360px;
 }
 
 .study-card {
   text-align: left;
-  border: 1px solid var(--violet-200);
-  background: linear-gradient(160deg, #f5f3ff, #ede9fe);
+  border: 1px solid rgba(221, 214, 254, 0.2);
+  background: linear-gradient(160deg, #5b21b6, #6d28d9 62%, #7c3aed);
   border-radius: 12px;
   padding: 14px;
-  min-height: 170px;
+  min-height: 260px;
+  width: min(420px, 100%);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 18px 40px rgba(91, 33, 182, 0.28);
 }
 
 .study-card:hover {
   transform: translateY(-3px);
+  box-shadow: 0 22px 48px rgba(91, 33, 182, 0.36);
 }
 
 .study-card.revealed {
-  opacity: 0.6;
+  opacity: 0.82;
 }
 
 .card-label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--violet-700);
+  color: #ddd6fe;
 }
 
 .card-text {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--ink-900);
+  color: #ffffff;
   flex: 1;
+  min-height: 120px;
 }
 
 .hint-text {
   font-size: 0.85rem;
-  color: var(--ink-600);
+  color: #ede9fe;
+}
+
+.study-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+}
+
+.study-actions button {
+  min-width: 150px;
 }
 
 .table-wrap {
@@ -205,6 +254,10 @@ td {
   border-bottom: 1px solid var(--violet-200);
 }
 
+td {
+  color: #111827;
+}
+
 .actions-cell {
   display: flex;
   gap: 8px;
@@ -216,8 +269,20 @@ td {
     align-items: stretch;
   }
 
+  .mode-switch {
+    width: 100%;
+  }
+
+  .mode-switch button {
+    flex: 1;
+  }
+
   .create-form {
     grid-template-columns: 1fr;
+  }
+
+  .create-form button {
+    justify-self: center;
   }
 
   .empty-box {
