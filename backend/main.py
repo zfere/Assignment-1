@@ -25,6 +25,14 @@ def serialize_flashcard(row) -> Flashcard:
     return Flashcard(id=row["id"], question=row["question"], answer=row["answer"])
 
 
+@app.get("/")
+async def root():
+    """Basic health/info endpoint for quick backend checks."""
+    return {
+        "status": "ok",
+    }
+
+
 # Read flashcards
 @app.get("/api/flashcards", response_model=List[Flashcard])
 async def get_all_flashcards():
