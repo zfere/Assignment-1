@@ -180,12 +180,18 @@ function App() {
     setRevealedId(null)
   }
 
+  const exitStudyMode = () => {
+    setActiveView('manage')
+    setStudyDeck(cards)
+    setRevealedId(null)
+  }
+
   return (
     <main className="app-shell">
       <header className="top-bar">
         <div>
           <h1>Flashcard Learning App</h1>
-          <p>Study, manage, and update your flashcards in one page.</p>
+          <p>Master your flashcards with interactive study sessions.</p>
         </div>
 
         <div className="mode-switch" role="tablist" aria-label="View switch">
@@ -241,10 +247,11 @@ function App() {
           <div className="section-header">
             <div>
               <h2>Study Mode</h2>
-              <p className="study-summary">Click a card to flip it. Revealed cards leave this session automatically.</p>
             </div>
             <div className="counter-block">
-              <div className="counter">{cardsRemaining} cards remaining</div>
+              <div className="counter">
+                {cardsRemaining} {cardsRemaining === 1 ? 'card' : 'cards'} remaining
+              </div>
               <div className="counter-detail">{studiedCount} studied · {progressPercent}% complete</div>
             </div>
           </div>
@@ -255,9 +262,12 @@ function App() {
 
           {studyDeck.length === 0 ? (
             <div className="empty-box">
-              <p>No cards left in this session.</p>
+              <p>Session complete! All cards studied.</p>
               <button type="button" onClick={resetStudyDeck}>
                 Restart session
+              </button>
+              <button type="button" onClick={exitStudyMode} className="secondary-btn">
+                Exit Study Mode
               </button>
             </div>
           ) : (
@@ -271,26 +281,18 @@ function App() {
               >
                 <span className="study-card-inner">
                   <span className="study-card-face study-card-front">
-                    <span className="card-label">Question</span>
+                    <span className="card-label">QUESTION</span>
                     <span className="card-text">{currentCard.question}</span>
-                    <span className="hint-text">Click to reveal answer</span>
+                    <span className="hint-text" />
                   </span>
 
                   <span className="study-card-face study-card-back">
-                    <span className="card-label">Answer</span>
+                    <span className="card-label">ANSWER</span>
                     <span className="card-text">{currentCard.answer}</span>
-                    <span className="hint-text">Card will leave this session in a moment</span>
+                    <span className="hint-text" />
                   </span>
                 </span>
               </button>
-
-              <div className="study-actions">
-                <p className="study-note">
-                  {revealedId === currentCard.id
-                    ? 'Answer revealed. Loading the next card...'
-                    : 'Focus on the question before flipping the card.'}
-                </p>
-              </div>
             </div>
           )}
         </section>
@@ -306,63 +308,48 @@ function App() {
           {cards.length === 0 ? (
             <p className="status">No flashcards yet. Add one above.</p>
           ) : (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Question</th>
-                    <th>Answer</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cards.map((card) => (
-                    <tr key={card.id}>
-                      <td>
-                        {editingId === card.id ? (
-                          <input
-                            value={editQuestion}
-                            onChange={(event) => setEditQuestion(event.target.value)}
-                          />
-                        ) : (
-                          card.question
-                        )}
-                      </td>
-                      <td>
-                        {editingId === card.id ? (
-                          <input
-                            value={editAnswer}
-                            onChange={(event) => setEditAnswer(event.target.value)}
-                          />
-                        ) : (
-                          card.answer
-                        )}
-                      </td>
-                      <td className="actions-cell">
-                        {editingId === card.id ? (
-                          <>
-                            <button type="button" onClick={() => handleUpdate(card.id)}>
-                              Save
-                            </button>
-                            <button type="button" onClick={cancelEdit}>
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button type="button" onClick={() => beginEdit(card)}>
-                              Edit
-                            </button>
-                            <button type="button" onClick={() => handleDelete(card.id)}>
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="card-grid">
+              {cards.map((card) => (
+                <div key={card.id} className="grid-card">
+                  {editingId === card.id ? (
+                    <div className="card-edit-form">
+                      <input
+                        value={editQuestion}
+                        onChange={(event) => setEditQuestion(event.target.value)}
+                        placeholder="Question"
+                      />
+                      <input
+                        value={editAnswer}
+                        onChange={(event) => setEditAnswer(event.target.value)}
+                        placeholder="Answer"
+                      />
+                      <div className="card-edit-actions">
+                        <button type="button" onClick={() => handleUpdate(card.id)}>
+                          Save
+                        </button>
+                        <button type="button" onClick={cancelEdit}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="card-content">
+                        <p className="card-question">{card.question}</p>
+                        <p className="card-answer">{card.answer}</p>
+                      </div>
+                      <div className="card-actions">
+                        <button type="button" onClick={() => beginEdit(card)} title="Edit" className="edit-btn">
+                          ✏️
+                        </button>
+                        <button type="button" onClick={() => handleDelete(card.id)} title="Delete" className="delete-btn">
+                          🗑️
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </section>
