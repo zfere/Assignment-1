@@ -19,6 +19,14 @@ function App() {
 
   const cardsRemaining = useMemo(() => studyDeck.length, [studyDeck])
   const currentCard = useMemo(() => studyDeck[0] ?? null, [studyDeck])
+  const studiedCount = useMemo(() => Math.max(cards.length - studyDeck.length, 0), [cards, studyDeck])
+  const progressPercent = useMemo(() => {
+    if (cards.length === 0) {
+      return 0
+    }
+
+    return Math.round((studiedCount / cards.length) * 100)
+  }, [cards.length, studiedCount])
 
   const loadCards = async () => {
     setLoading(true)
@@ -32,6 +40,7 @@ function App() {
       }
 
       const data = await response.json()
+
       setCards(data)
       setStudyDeck(data)
     } catch {
@@ -44,6 +53,19 @@ function App() {
   useEffect(() => {
     loadCards()
   }, [])
+
+  useEffect(() => {
+    if (revealedId === null) {
+      return undefined
+    }
+
+    const removalTimer = window.setTimeout(() => {
+      setStudyDeck((prev) => prev.filter((card) => card.id !== revealedId))
+      setRevealedId(null)
+    }, 1100)
+
+    return () => window.clearTimeout(removalTimer)
+  }, [revealedId])
 
   const handleCreate = async (event) => {
     event.preventDefault()
@@ -146,20 +168,11 @@ function App() {
   }
 
   const revealCurrentCard = () => {
-    if (!currentCard) {
+    if (!currentCard || revealedId === currentCard.id) {
       return
     }
 
     setRevealedId(currentCard.id)
-  }
-
-  const goToNextCard = () => {
-    if (!currentCard) {
-      return
-    }
-
-    setStudyDeck((prev) => prev.slice(1))
-    setRevealedId(null)
   }
 
   const resetStudyDeck = () => {
@@ -226,8 +239,18 @@ function App() {
       {activeView === 'study' ? (
         <section className="panel">
           <div className="section-header">
-            <h2>Study Mode</h2>
-            <div className="counter">Cards remaining: {cardsRemaining}</div>
+            <div>
+              <h2>Study Mode</h2>
+              <p className="study-summary">Click a card to flip it. Revealed cards leave this session automatically.</p>
+            </div>
+            <div className="counter-block">
+              <div className="counter">{cardsRemaining} cards remaining</div>
+              <div className="counter-detail">{studiedCount} studied · {progressPercent}% complete</div>
+            </div>
+          </div>
+
+          <div className="progress-track" aria-hidden="true">
+            <span className="progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
 
           {studyDeck.length === 0 ? (
@@ -244,26 +267,29 @@ function App() {
                 type="button"
                 className={`study-card ${revealedId === currentCard.id ? 'revealed' : ''}`}
                 onClick={revealCurrentCard}
+                disabled={revealedId === currentCard.id}
               >
-                <span className="card-label">
-                  {revealedId === currentCard.id ? 'Answer' : 'Question'}
-                </span>
-                <span className="card-text">
-                  {revealedId === currentCard.id ? currentCard.answer : currentCard.question}
-                </span>
-                <span className="hint-text">
-                  {revealedId === currentCard.id
-                    ? 'Answer revealed. Click Next Card.'
-                    : 'Click to reveal answer'}
+                <span className="study-card-inner">
+                  <span className="study-card-face study-card-front">
+                    <span className="card-label">Question</span>
+                    <span className="card-text">{currentCard.question}</span>
+                    <span className="hint-text">Click to reveal answer</span>
+                  </span>
+
+                  <span className="study-card-face study-card-back">
+                    <span className="card-label">Answer</span>
+                    <span className="card-text">{currentCard.answer}</span>
+                    <span className="hint-text">Card will leave this session in a moment</span>
+                  </span>
                 </span>
               </button>
 
               <div className="study-actions">
-                {revealedId === currentCard.id ? (
-                  <button type="button" onClick={goToNextCard}>
-                    Next Card
-                  </button>
-                ) : null}
+                <p className="study-note">
+                  {revealedId === currentCard.id
+                    ? 'Answer revealed. Loading the next card...'
+                    : 'Focus on the question before flipping the card.'}
+                </p>
               </div>
             </div>
           )}
