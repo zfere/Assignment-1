@@ -241,7 +241,9 @@ button {
 }
 
 .progress-fill {
+  display: block;
   height: 100%;
+  width: 0%;
   background: linear-gradient(90deg, var(--purple-mid), var(--purple-light));
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: inherit;
@@ -271,6 +273,7 @@ button {
 }
 
 .study-card-inner {
+  display: block;
   position: relative;
   width: 100%;
   height: 100%;
@@ -290,7 +293,7 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   padding: 32px;
   border-radius: 16px;
   box-shadow: 0 12px 32px rgba(77, 29, 149, 0.18);
@@ -308,23 +311,37 @@ button {
 }
 
 .card-label {
+  display: block;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.6);
+  width: 100%;
+  margin: 0;
+  padding: 0 20px;
 }
 
 .card-text {
+  display: block;
   font-size: 1.4rem;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.5;
-  word-break: break-word;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: normal;
+  width: 100%;
+  margin: 0;
+  padding: 0 20px;
 }
 
 .hint-text {
-  display: none;
+  display: none !important;
+  visibility: hidden;
+  height: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .study-card:hover:not(:disabled) .study-card-front {

@@ -257,7 +257,7 @@ function App() {
           </div>
 
           <div className="progress-track" aria-hidden="true">
-            <span className="progress-fill" style={{ width: `${progressPercent}%` }} />
+            <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
 
           {studyDeck.length === 0 ? (
@@ -279,19 +279,19 @@ function App() {
                 onClick={revealCurrentCard}
                 disabled={revealedId === currentCard.id}
               >
-                <span className="study-card-inner">
-                  <span className="study-card-face study-card-front">
-                    <span className="card-label">QUESTION</span>
-                    <span className="card-text">{currentCard.question}</span>
-                    <span className="hint-text" />
-                  </span>
+                <div className="study-card-inner">
+                  <div className="study-card-face study-card-front">
+                    <div className="card-label">QUESTION</div>
+                    <div className="card-text">{currentCard.question}</div>
+                    <div className="hint-text" />
+                  </div>
 
-                  <span className="study-card-face study-card-back">
-                    <span className="card-label">ANSWER</span>
-                    <span className="card-text">{currentCard.answer}</span>
-                    <span className="hint-text" />
-                  </span>
-                </span>
+                  <div className="study-card-face study-card-back">
+                    <div className="card-label">ANSWER</div>
+                    <div className="card-text">{currentCard.answer}</div>
+                    <div className="hint-text" />
+                  </div>
+                </div>
               </button>
             </div>
           )}
