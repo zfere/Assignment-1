@@ -69,14 +69,29 @@ Assignment 1/
 
 ## Running the App
 
+### 1. Restore the database (first time only)
+
+A SQL export of the database is included at `backend/flashcards_export.sql`. To load it:
+
 ```bash
-# Backend
+cd backend
+python -c "import sqlite3; con = sqlite3.connect('flashcards.db'); con.executescript(open('flashcards_export.sql').read()); con.close(); print('Database restored.')"
+```
+
+This creates `backend/flashcards.db` with the schema and sample data pre-loaded. If you skip this step, the backend will create an empty database automatically on first run.
+
+### 2. Start the backend
+
+```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 # → http://localhost:8000  (API docs at /docs)
+```
 
-# Frontend (separate terminal)
+### 3. Start the frontend (separate terminal)
+
+```bash
 cd frontend
 npm install
 npm run dev
