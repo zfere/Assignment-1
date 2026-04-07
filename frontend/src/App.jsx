@@ -56,12 +56,20 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (activeView !== 'study' || !canAdvance) {
+    if (activeView !== 'study' || currentCard === null) {
       return undefined
     }
 
     const handleKeyDown = (event) => {
-      if (event.key !== 'ArrowRight') {
+      const isFlipKey = event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar'
+
+      if (isFlipKey && revealedId !== currentCard.id) {
+        event.preventDefault()
+        setRevealedId(currentCard.id)
+        return
+      }
+
+      if (event.key !== 'ArrowRight' || revealedId !== currentCard.id) {
         return
       }
 
@@ -75,7 +83,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [activeView, canAdvance, revealedId])
+  }, [activeView, currentCard, revealedId])
 
   const handleNextCard = () => {
     if (revealedId === null) {
