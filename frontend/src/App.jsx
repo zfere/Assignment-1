@@ -2,6 +2,9 @@ import './App.css'
 import { useEffect, useMemo, useState } from 'react'
 
 function App() {
+  // Match the 3D flip animation duration (0.8s from CSS transition)
+  const REVEAL_ADVANCE_DELAY_MS = 800
+
   const [cards, setCards] = useState([])
   const [studyDeck, setStudyDeck] = useState([])
   const [activeView, setActiveView] = useState('study')
@@ -16,10 +19,11 @@ function App() {
   const [editAnswer, setEditAnswer] = useState('')
 
   const [revealedId, setRevealedId] = useState(null)
+  const [isAdvanceReady, setIsAdvanceReady] = useState(false)
 
   const cardsRemaining = useMemo(() => studyDeck.length, [studyDeck])
   const currentCard = useMemo(() => studyDeck[0] ?? null, [studyDeck])
-  const canAdvance = currentCard !== null && revealedId === currentCard.id
+  const canAdvance = currentCard !== null && revealedId === currentCard.id && isAdvanceReady
   const studiedCount = useMemo(() => Math.max(cards.length - studyDeck.length, 0), [cards, studyDeck])
   const progressPercent = useMemo(() => {
     if (cards.length === 0) {
@@ -56,6 +60,22 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (revealedId === null) {
+      setIsAdvanceReady(false)
+      return undefined
+    }
+
+    setIsAdvanceReady(false)
+    const readyTimer = window.setTimeout(() => {
+      setIsAdvanceReady(true)
+    }, REVEAL_ADVANCE_DELAY_MS)
+
+    return () => {
+      window.clearTimeout(readyTimer)
+    }
+  }, [revealedId, REVEAL_ADVANCE_DELAY_MS])
+
+  useEffect(() => {
     if (activeView !== 'study' || currentCard === null) {
       return undefined
     }
@@ -69,7 +89,7 @@ function App() {
         return
       }
 
-      if (event.key !== 'ArrowRight' || revealedId !== currentCard.id) {
+      if (event.key !== 'ArrowRight' || revealedId !== currentCard.id || !isAdvanceReady) {
         return
       }
 
@@ -83,7 +103,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [activeView, currentCard, revealedId])
+  }, [activeView, currentCard, revealedId, isAdvanceReady])
 
   const handleNextCard = () => {
     if (revealedId === null) {
@@ -199,18 +219,21 @@ function App() {
       return
     }
 
+    setIsAdvanceReady(false)
     setRevealedId(currentCard.id)
   }
 
   const resetStudyDeck = () => {
     setStudyDeck(cards)
     setRevealedId(null)
+    setIsAdvanceReady(false)
   }
 
   const exitStudyMode = () => {
     setActiveView('manage')
     setStudyDeck(cards)
     setRevealedId(null)
+    setIsAdvanceReady(false)
   }
 
   return (
