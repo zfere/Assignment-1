@@ -54,18 +54,10 @@ function App() {
     loadCards()
   }, [])
 
-  useEffect(() => {
-    if (revealedId === null) {
-      return undefined
-    }
-
-    const removalTimer = window.setTimeout(() => {
-      setStudyDeck((prev) => prev.filter((card) => card.id !== revealedId))
-      setRevealedId(null)
-    }, 1100)
-
-    return () => window.clearTimeout(removalTimer)
-  }, [revealedId])
+  const handleNextCard = () => {
+    setStudyDeck((prev) => prev.filter((card) => card.id !== revealedId))
+    setRevealedId(null)
+  }
 
   const handleCreate = async (event) => {
     event.preventDefault()
@@ -293,6 +285,13 @@ function App() {
                   </div>
                 </div>
               </button>
+              {revealedId === currentCard.id && (
+                <div className="study-actions-bottom">
+                  <button type="button" onClick={handleNextCard} className="next-card-btn">
+                    Next Card
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </section>
