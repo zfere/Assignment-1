@@ -19,6 +19,7 @@ function App() {
 
   const cardsRemaining = useMemo(() => studyDeck.length, [studyDeck])
   const currentCard = useMemo(() => studyDeck[0] ?? null, [studyDeck])
+  const canAdvance = currentCard !== null && revealedId === currentCard.id
   const studiedCount = useMemo(() => Math.max(cards.length - studyDeck.length, 0), [cards, studyDeck])
   const progressPercent = useMemo(() => {
     if (cards.length === 0) {
@@ -54,7 +55,33 @@ function App() {
     loadCards()
   }, [])
 
+  useEffect(() => {
+    if (activeView !== 'study' || !canAdvance) {
+      return undefined
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key !== 'ArrowRight') {
+        return
+      }
+
+      event.preventDefault()
+      setStudyDeck((prev) => prev.filter((card) => card.id !== revealedId))
+      setRevealedId(null)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [activeView, canAdvance, revealedId])
+
   const handleNextCard = () => {
+    if (revealedId === null) {
+      return
+    }
+
     setStudyDeck((prev) => prev.filter((card) => card.id !== revealedId))
     setRevealedId(null)
   }
@@ -263,13 +290,15 @@ function App() {
               </button>
             </div>
           ) : (
-            <div className="study-stage">
+            <div className="study-carousel">
+              <div className="carousel-spacer" aria-hidden="true" />
+
               <button
                 key={currentCard.id}
                 type="button"
                 className={`study-card ${revealedId === currentCard.id ? 'revealed' : ''}`}
                 onClick={revealCurrentCard}
-                disabled={revealedId === currentCard.id}
+                aria-label="Flip flashcard"
               >
                 <div className="study-card-inner">
                   <div className="study-card-face study-card-front">
@@ -285,13 +314,21 @@ function App() {
                   </div>
                 </div>
               </button>
-              {revealedId === currentCard.id && (
-                <div className="study-actions-bottom">
-                  <button type="button" onClick={handleNextCard} className="next-card-btn">
-                    Next Card
-                  </button>
-                </div>
-              )}
+
+              <div className="carousel-nav" aria-hidden="false">
+                <button
+                  type="button"
+                  onClick={handleNextCard}
+                  disabled={!canAdvance}
+                  aria-label="Next Card"
+                  title="Next Card (Right Arrow)"
+                  className={`carousel-next-btn ${canAdvance ? 'is-visible' : ''}`}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M9 5L16 12L9 19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </section>

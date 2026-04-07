@@ -265,14 +265,79 @@ button {
 }
 
 /* ===== Study Stage & Cards ===== */
-.study-stage {
+.study-carousel {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: 16px;
   min-height: 480px;
   perspective: 1400px;
+  width: 100%;
+}
+
+.carousel-spacer {
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.carousel-nav {
+  width: 48px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.carousel-next-btn {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(109, 40, 217, 0.25);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple-mid);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(76, 29, 149, 0.14);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.92);
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+
+.carousel-next-btn.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+  animation: carouselPulse 1.8s ease-in-out infinite;
+}
+
+.carousel-next-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.85);
+  transform: scale(1.08);
+}
+
+.carousel-next-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+@keyframes carouselPulse {
+  0% {
+    box-shadow: 0 6px 18px rgba(76, 29, 149, 0.14);
+  }
+  50% {
+    box-shadow: 0 10px 24px rgba(76, 29, 149, 0.22);
+  }
+  100% {
+    box-shadow: 0 6px 18px rgba(76, 29, 149, 0.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-next-btn.is-visible {
+    animation: none;
+  }
 }
 
 .study-card {
@@ -391,13 +456,6 @@ button {
 .empty-box button {
   margin: 0;
   padding: 12px 28px;
-}
-
-.study-actions-bottom {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 24px;
 }
 
 /* ===== Manage Mode - Card Grid ===== */
@@ -589,8 +647,24 @@ button {
     font-size: 0.9rem;
   }
 
-  .study-stage {
+  .study-carousel {
     min-height: 360px;
+    gap: 10px;
+  }
+
+  .carousel-spacer,
+  .carousel-nav {
+    width: 40px;
+  }
+
+  .carousel-next-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .carousel-next-btn svg {
+    width: 24px;
+    height: 24px;
   }
 
   .study-card {
