@@ -323,7 +323,7 @@ button {
 }
 
 .carousel-next-btn svg path {
-  stroke: var(--purple-mid);
+  stroke: #FFFFFF;
 }
 
 @keyframes carouselPulse {
