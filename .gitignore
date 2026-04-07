@@ -1,2 +1,31 @@
 TODO.md
 backend/.env
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Database files
+*.db
+flashcards.db
+
+# Virtual environments
+.venv
+venv/
+env/
+
+# Frontend build & cache
+node_modules/
+dist/
+.vite/
+.DS_Store
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
